@@ -3,12 +3,13 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
-namespace FileSystemWatcherFiltering
+namespace FileWatcherQueuePublisher
 {
   class Program
   {
     static void Main(string[] args)
     {
+      Console.Title = typeof(Program).Assembly.GetName().Name;
       Log.Logger = new LoggerConfiguration().WriteTo.File($"{Environment.UserName}.{typeof(Program).Assembly.GetName().Name}.log").CreateLogger();
       DirectoryWatcher watcher = new DirectoryWatcher(GetSettings());
       watcher.WatchFilesAndChill();

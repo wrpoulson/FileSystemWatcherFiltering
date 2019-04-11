@@ -1,9 +1,7 @@
-﻿
-using System;
-using System.Text;
+﻿using System.Text;
 using RabbitMQ.Client;
 
-namespace FileSystemWatcherFiltering
+namespace FileWatcherQueuePublisher
 {
   public class RabbitMqPublisher
   {

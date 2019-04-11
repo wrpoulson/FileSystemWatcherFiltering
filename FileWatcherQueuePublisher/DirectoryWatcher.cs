@@ -2,11 +2,10 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 
-namespace FileSystemWatcherFiltering
+namespace FileWatcherQueuePublisher
 {
   public class DirectoryWatcher
   {
@@ -52,7 +51,9 @@ namespace FileSystemWatcherFiltering
         {
           try
           {
-            publisher.SendMessage(fileEventMessages.Take());
+            var nextMessage = fileEventMessages.Take();
+            publisher.SendMessage(nextMessage);
+            Log.Information(nextMessage);
           }
           catch (InvalidOperationException)
           {
