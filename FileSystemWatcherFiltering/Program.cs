@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
+using System.Threading;using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace FileSystemWatcherFiltering
@@ -21,27 +21,25 @@ namespace FileSystemWatcherFiltering
     {
       FileSystemWatcher watcher = new FileSystemWatcher();
       watcher.Path = settings.WatcherPath;
-
-
-      var filter = "*.dat";
-      var useFilter = false;
-      if(useFilter) watcher.Filter = filter;
-
       watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
-
       watcher.Created += new FileSystemEventHandler(OnChanged);
       watcher.IncludeSubdirectories = true;
 
       watcher.EnableRaisingEvents = true;
 
-      Console.WriteLine($"Watching {settings.WatcherPath} {(useFilter ? $"with filter: {filter}" : string.Empty)}");
+      Console.WriteLine($"Watching {settings.WatcherPath}");
       Console.WriteLine("\nPress 'q' to close application.\n");
       while (Console.Read() != 'q') ;
     }
 
     public static void OnChanged(object source, FileSystemEventArgs e)
     {
-      Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
+      Regex regex = new Regex(@"(VFTP\\XPEDITOR\\L\d{3}\\CLIENTFTP\\DROPOFF\\CLAIMS\\RealTime)");
+
+      if (regex.IsMatch(e.FullPath))
+      {
+        Log.Information($"File received: {e.FullPath} via {e.ChangeType}");
+      }
     }
 
     private static Settings GetSettings()
