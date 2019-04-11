@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace FileSystemWatcherFiltering
@@ -11,8 +10,8 @@ namespace FileSystemWatcherFiltering
     static void Main(string[] args)
     {
       Log.Logger = new LoggerConfiguration().WriteTo.File($"{Environment.UserName}.{typeof(Program).Assembly.GetName().Name}.log").CreateLogger();
-      DirectoryWatcher watcher = new DirectoryWatcher();
-      watcher.WatchFilesAndChill(GetSettings());
+      DirectoryWatcher watcher = new DirectoryWatcher(GetSettings());
+      watcher.WatchFilesAndChill();
     }
 
     private static Settings GetSettings()
