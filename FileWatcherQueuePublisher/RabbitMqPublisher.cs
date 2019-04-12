@@ -21,14 +21,17 @@ namespace FileWatcherQueuePublisher
     public RabbitMqPublisher DeclareQueue()
     {
       var factory = new ConnectionFactory() { HostName = "localhost" };
+
       using (var connection = factory.CreateConnection())
       using (var channel = connection.CreateModel())
       {
-        channel.QueueDeclare(queue: QueueName,
-                     durable: true,
-                     exclusive: false,
-                     autoDelete: false,
-                     arguments: null);
+        channel.QueueDeclare(
+          queue: QueueName,
+          durable: true,
+          exclusive: false,
+          autoDelete: false,
+          arguments: null
+        );
       }
 
       return this;
@@ -37,16 +40,18 @@ namespace FileWatcherQueuePublisher
     public void SendMessage(string message)
     {
       var factory = new ConnectionFactory() { HostName = "localhost" };
+
       using (var connection = factory.CreateConnection())
       using (var channel = connection.CreateModel())
       {
         var body = Encoding.UTF8.GetBytes(message);
 
-        channel.BasicPublish(exchange: ExchangeName,
-                             routingKey: RoutingKey,
-                             basicProperties: null,
-                             body: body);
-        //Console.WriteLine(" [x] Sent {0}", message);
+        channel.BasicPublish(
+          exchange: ExchangeName,
+          routingKey: RoutingKey,
+          basicProperties: null,
+          body: body
+        );
       }
     }
   }

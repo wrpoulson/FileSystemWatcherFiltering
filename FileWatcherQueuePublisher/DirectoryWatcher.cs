@@ -10,17 +10,19 @@ namespace FileWatcherQueuePublisher
   public class DirectoryWatcher
   {
     private Settings _settings;
-    private RabbitMqPublisher publisher;
+    private RabbitMqPublisher _publisher;
+    private BlockingCollection<string> _fileEventMessages;
     private Regex regex = new Regex(@"(VFTP\\XPEDITOR\\L\d{3}\\CLIENTFTP\\DROPOFF\\CLAIMS\\RealTime)");
-    int count = 0;
+
+    private int count = 0;
 
     public DirectoryWatcher(Settings settings)
     {
       _settings = settings;
-      publisher = new RabbitMqPublisher(settings).DeclareQueue();
+      _publisher = new RabbitMqPublisher(settings).DeclareQueue();
+      _fileEventMessages = new BlockingCollection<string>();
     }
 
-    private BlockingCollection<string> fileEventMessages = new BlockingCollection<string>();
 
     public void WatchFilesAndChill()
     {
@@ -47,12 +49,12 @@ namespace FileWatcherQueuePublisher
     {
       Task.Run(() =>
       {
-        while (!fileEventMessages.IsCompleted)
+        while (!_fileEventMessages.IsCompleted)
         {
           try
           {
-            var nextMessage = fileEventMessages.Take();
-            publisher.SendMessage(nextMessage);
+            var nextMessage = _fileEventMessages.Take();
+            _publisher.SendMessage(nextMessage);
             Log.Information(nextMessage);
           }
           catch (InvalidOperationException)
@@ -60,9 +62,11 @@ namespace FileWatcherQueuePublisher
             Console.WriteLine("Adding was completed!");
             break;
           }
+          catch(Exception ex)
+          {
+            Log.Error(ex, "Error queueing file event.");
+          }
         }
-
-        Console.WriteLine("\r\nNo more items to take. Press the Enter key to exit.");
       });
     }
 
@@ -71,7 +75,7 @@ namespace FileWatcherQueuePublisher
       if (regex.IsMatch(e.FullPath))
       {
         count++;
-        fileEventMessages.Add($"File received: {e.FullPath} via {e.ChangeType}");
+        _fileEventMessages.Add($"File {e.ChangeType}: {e.FullPath}");
       }
     }
   }
