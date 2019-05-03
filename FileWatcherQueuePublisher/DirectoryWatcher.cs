@@ -12,7 +12,7 @@ namespace FileWatcherQueuePublisher
     private Settings _settings;
     private RabbitMqPublisher _publisher;
     private BlockingCollection<string> _fileEventMessages;
-    private Regex regex = new Regex(@"(VFTP\\XPEDITOR\\L\d{3}\\CLIENTFTP\\DROPOFF\\CLAIMS\\RealTime)");
+    private Regex regex = new Regex(@"(VFTP\\XPEDITOR\\EDITEST\\RealTimeHIM\\FileSystemWatcherLimitations_XP9631\\1_WatchAllTheDirectories\\TheDrop\\L\d{3}\\CLIENTFTP\\DROPOFF\\CLAIMS\\RealTime)");
 
     private int count = 0;
 
