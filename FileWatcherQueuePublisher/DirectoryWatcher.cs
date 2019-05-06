@@ -9,6 +9,7 @@ namespace FileWatcherQueuePublisher
 {
   public class DirectoryWatcher
   {
+    private readonly string _watcherPath;
     private Settings _settings;
     private RabbitMqPublisher _publisher;
     private BlockingCollection<string> _fileEventMessages;
@@ -21,13 +22,20 @@ namespace FileWatcherQueuePublisher
       _settings = settings;
       _publisher = new RabbitMqPublisher(settings).DeclareQueue();
       _fileEventMessages = new BlockingCollection<string>();
+      _watcherPath = settings.WatcherPath;
     }
-
+    public DirectoryWatcher(Settings settings, string watcherPath)
+    {
+      _settings = settings;
+      _publisher = new RabbitMqPublisher(settings).DeclareQueue();
+      _fileEventMessages = new BlockingCollection<string>();
+      _watcherPath = watcherPath;
+    }
 
     public void WatchFilesAndChill()
     {
       FileSystemWatcher watcher = new FileSystemWatcher();
-      watcher.Path = _settings.WatcherPath;
+      watcher.Path = _watcherPath;
       watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
       watcher.Created += new FileSystemEventHandler(OnChanged);
       watcher.IncludeSubdirectories = true;
@@ -36,13 +44,13 @@ namespace FileWatcherQueuePublisher
 
       RunConcurrentQueueing();
 
-      Console.WriteLine($" Watching {_settings.WatcherPath}");
-      Log.Information($"Watching started on {_settings.WatcherPath}");
+      Console.WriteLine($" Watching {_watcherPath}");
+      Log.Information($"Watching started on {_watcherPath}");
 
       Console.WriteLine("\n Press 'q' to close application.\n");
       while (Console.Read() != 'q') ;
 
-      Log.Information($"Watching ended on {_settings.WatcherPath}, {count} files observed");
+      Log.Information($"Watching ended on {_watcherPath}, {count} files observed");
     }
 
     private void RunConcurrentQueueing()

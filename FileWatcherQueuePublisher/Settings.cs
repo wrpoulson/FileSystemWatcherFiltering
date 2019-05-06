@@ -13,5 +13,9 @@ namespace FileWatcherQueuePublisher
     public string ExchangeName { get; set; }
 
     public string RoutingKey { get; set; }
+
+    public bool EnableThreading { get; set; }
+
+    public int MaxThreadCount { get; set; }
   }
 }
